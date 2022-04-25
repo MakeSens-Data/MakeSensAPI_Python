@@ -14,8 +14,8 @@ setup(
     description="MakeSense API",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/Ciencia-de-datos/API_Python/tree/main/MakeSensCloud-base",
-    author="MakeSens Maximiliano G.Ch. DAPL",
+    url="https://github.com/MakeSens-Data/MakeSensAPI_Python",
+    author="MakeSens DAPL",
     author_email="jose.salamancacoy@gmail.com",
     license="GNU General Public License v3.0",
     classifiers=[
