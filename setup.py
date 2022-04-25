@@ -1,5 +1,5 @@
 import pathlib
-from setuptools import setup,find_package
+from setuptools import setup,find_packages
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
@@ -9,13 +9,13 @@ README = (HERE / "README.md").read_text()
 
 # This call to setup() does all the work
 setup(
-    name="MakeSensAPI",
-    version="0.5.1",
+    name="APIMakeSens",
+    version="0.5.2",
     description="MakeSense API",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/MakeSens-Data/MakeSensAPI_Python",
-    author="MakeSens DAPL",
+    author="MakeSens G.Ch. DAPL",
     author_email="miguelta281@gmail.com",
     license="GNU General Public License v3.0",
     classifiers=[

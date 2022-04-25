@@ -1,54 +1,28 @@
-import numpy as np 
 import pandas as pd
-from datetime import datetime
 import requests
+import json
+from datetime import datetime
 
-def download_eva(bucket:str,tmin:int,tmax:int,frecuency:str, format_:str='None'):
-    """
-    Parameters:
-        bucket:str -> station identifier
-        tmin:int -> maximum time in unix format
-        tmax:int -> minimum time in unix format
-        frecuency:str -> sampling frequency
-                         h -> hour
-                         m -> minutes
-        format_:str = data format (.csv, .xlxs)                      
-    """
-    s = requests.Session()
-    data_ = []
-    while tmin < tmax :
-        url_ = 'https://makesens.aws.thinger.io/v1/users/MakeSens/buckets/' + bucket + '/data?agg=1'+frecuency+'&agg_type=mean&items=1000&max_ts=' + str(tmax) + '000&min_ts='+ str(tmin) +'000&sort=asc&authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJUT0tFTl9JQ1AiLCJ1c3IiOiJNYWtlU2VucyJ9.aFSgJgp6YRhkbu0jGmkkRuwVn07RR-zxEYlFHwrVJVc'
-        try:
-            data = s.get(url_)
-            data_ = data_ + data.json()
-            try:
-                if tmin == data.json()[-1]['ts']//1000: 
-                    break
-                else:
-                    tmin = data.json()[-1]['ts']//1000
-                dict_ = {'ts': [], 'humedad' : [], 'irradiancia' : [], 'pm10_1':[],'pm10_2': [], 'pm25_1': [],'pm25_2': [],'precipitacion': [],
-             'presion': [],'temperatura' : []}
-
-                for i in range(0,len(data_)):
-                    dict_['ts'].append(datetime.fromtimestamp(data_[i]['ts']/1000).strftime('%Y-%m-%d %H:%M:%S'))
-                    for j in list(dict_.keys())[1:]:
-                        if  j in list(data_[i]['mean'].keys()):
-                            dict_[j].append(data_[i]['mean'][j])
-                        else:
-                            dict_[j].append(np.nan)
-                
-            except IndexError:
-                print('No hay datos en este intervalo')
-                break
-        except TypeError:
-            print('the requested bucket does not exist')
+def download_data(IdDevice:str,start:int,end:int,frecuency:str,token:str):   
+    start = int((datetime.strptime(start,"%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
+    end = int((datetime.strptime(end,"%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
+    data = []
+    data_ = pd.DataFrame()
+    tmin  = start
+    while tmin < end :
+        print(tmin)
+        url = 'https://makesens.aws.thinger.io/v1/users/MakeSens/buckets/B' + IdDevice + '/data?agg=1'+frecuency+'&agg_type=mean&items=1000&max_ts=' + str(end) + '000&min_ts='+ str(tmin) +'000&sort=asc&authorization=' + token
+        d = json.loads(requests.get(url).content)
+        if tmin == (d[-1]['ts']//1000) + 1:
             break
-    
-    _data = pd.DataFrame(data=dict_)
-    if format_ == 'None':
-        return _data
-    else:        
-        if format_ == 'csv':      
-            _data.to_csv(bucket + '_' + str(tmin) + '_to_' + str(tmax) + '_' + frecuency  +'.csv')
-        elif format_ == 'xlsx':
-            _data.to_excel(bucket + '_' + str(tmin) + '_to_' + str(tmax) + '_' + frecuency  +'.xlsx')
+        data+=d
+        tmin=(d[-1]['ts']//1000) + 1
+        data_ = pd.DataFrame([i['mean'] for i in data],index=[datetime.utcfromtimestamp(i['ts']/1000).strftime('%Y-%m-%d %H:%M:%S') for i in data])
+    return (data_)
+
+def save_data(IdDevice:str,start:int,end:int,frecuency:str,token:str,format_:str):
+    data = download_data(IdDevice,start,end,frecuency,token)
+    if format_ == 'csv':
+        data.to_csv(IdDevice + frecuency  +'.csv')
+    if format_ == 'xlsx':
+        data.to_excel(IdDevice + frecuency  +'.xlsx')

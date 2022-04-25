@@ -1,9 +1,9 @@
 Metadata-Version: 2.1
-Name: MakeSens-API
-Version: 0.5.1
+Name: APIMakeSens
+Version: 0.5.2
 Summary: MakeSense API
 Home-page: https://github.com/MakeSens-Data/MakeSensAPI_Python
-Author: MakeSens DAPL
+Author: MakeSens G.Ch. DAPL
 Author-email: miguelta281@gmail.com
 License: GNU General Public License v3.0
 Platform: UNKNOWN
