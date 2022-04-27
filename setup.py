@@ -24,7 +24,7 @@ setup(
     ],
     packages=["MakeSens"],
     include_package_data=True,
-    install_requires=["pandas", "requests","json","datetime"]
+    install_requires=["pandas", "requests","datetime"]
     ,
     entry_points={
         "console_scripts": [
