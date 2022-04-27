@@ -10,13 +10,13 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="APIMakeSens",
-    version="0.5.3",
+    version="1.0.0",
     description="MakeSense API",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/MakeSens-Data/MakeSensAPI_Python",
-    author="MakeSens G.Ch. DAPL",
-    author_email="miguelta281@gmail.com",
+    author="MakeSens",
+    author_email="makesens19@gmail.com",
     license="GNU General Public License v3.0",
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -24,7 +24,7 @@ setup(
     ],
     packages=["MakeSens"],
     include_package_data=True,
-    install_requires=["pandas", "requests","typing","datetime"]
+    install_requires=["pandas", "requests","json","datetime"]
     ,
     entry_points={
         "console_scripts": [

@@ -10,7 +10,6 @@ def download_data(IdDevice:str,start:int,end:int,frecuency:str,token:str):
     data_ = pd.DataFrame()
     tmin  = start
     while tmin < end :
-        print(tmin)
         url = 'https://makesens.aws.thinger.io/v1/users/MakeSens/buckets/B' + IdDevice + '/data?agg=1'+frecuency+'&agg_type=mean&items=1000&max_ts=' + str(end) + '000&min_ts='+ str(tmin) +'000&sort=asc&authorization=' + token
         d = json.loads(requests.get(url).content)
         if tmin == (d[-1]['ts']//1000) + 1:
