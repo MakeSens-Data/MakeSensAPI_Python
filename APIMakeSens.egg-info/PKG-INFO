@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: APIMakeSens
+Version: 1.0.3
+Summary: MakeSense API
+Home-page: https://github.com/MakeSens-Data/MakeSensAPI_Python
+Author: MakeSens
+Author-email: makesens19@gmail.com
+License: GNU General Public License v3.0
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# MakeSensAPI_Python
+En este repositorio, se plantea documentar la API para extraer datos de Makesens-Cloud Prueba
+
+

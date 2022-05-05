@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 import os
 
-def __download(IdDevice:str,start,end,frecuency:str,token:str,format_:str = None):   
+def __download(IdDevice:str,start,end,frecuency:str,token:str):
     if type(start) == str:
         start_ = int((datetime.strptime(start,"%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
         end_ = int((datetime.strptime(end,"%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
@@ -32,15 +32,7 @@ def __download(IdDevice:str,start,end,frecuency:str,token:str,format_:str = None
         except IndexError:
             break
 
-    if format_ == None:
-        pass
-    elif format_ == 'csv':
-        data_.to_csv(IdDevice + '_'+ start  +'_' + end + '_ ' + frecuency  +'.csv')
-    elif format_ == 'xlsx':
-        data_.to_excel(IdDevice + '_'+ start  +'_' + end + '_ ' + frecuency  +'.xlsx')
-    else:
-        print('El formato no es valido. Formatos validos: csv y xlsx')
-    return (data_, start_,end_)
+    return (data_, start_,end_) 
     
 #Función para verificar si la carpeta oculta ya esta creada y sino crearla
 def __crearCarpeta(nombre:str):
@@ -117,7 +109,7 @@ def __loadBackup(IdDevice,start,end,datosEn):
 
 
 #Entrega los datos al usuario
-def download_data (IdDevice,start,end,frecuency,token):
+def download_data (IdDevice,start,end,frecuency,token,format_:str = None):   
     a = __crearCarpeta('carpetaOculta') #Crear carpeta oculta
 
     #Verificar si ya hay archivos
@@ -176,6 +168,15 @@ def download_data (IdDevice,start,end,frecuency,token):
             for i in nombres_backup:
                 os.remove(i)
 
-            data.to_csv(nombre_archivo)   
+            data.to_csv(nombre_archivo)  
+
+    if format_ == None:
+        pass
+    elif format_ == 'csv':
+        data.to_csv(IdDevice + '_'+ start  +'_' + end + '_ ' + frecuency  +'.csv')
+    elif format_ == 'xlsx':
+        data.to_excel(IdDevice + '_'+ start  +'_' + end + '_ ' + frecuency  +'.xlsx')
+    else:
+        print('El formato no es valido. Formatos validos: csv y xlsx')
             
     return data
