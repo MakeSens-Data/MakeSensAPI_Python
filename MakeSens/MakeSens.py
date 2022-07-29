@@ -173,9 +173,9 @@ def download_data (IdDevice,start,end,frecuency,token,format_:str = None):
     if format_ == None:
         pass
     elif format_ == 'csv':
-        data.to_csv(IdDevice + '_'+ start  +'_' + end + '_ ' + frecuency  +'.csv')
+        data.to_csv(IdDevice + '_'+ start_  +'_' + end_ + '_ ' + frecuency  +'.csv')
     elif format_ == 'xlsx':
-        data.to_excel(IdDevice + '_'+ start  +'_' + end + '_ ' + frecuency  +'.xlsx')
+        data.to_excel(IdDevice + '_'+ start_  +'_' + end_ + '_ ' + frecuency  +'.xlsx')
     else:
         print('El formato no es valido. Formatos validos: csv y xlsx')
             
