@@ -146,7 +146,7 @@ def __in_backup(id_device: str, start_date: str, end_date: str, sample_rate: str
 # -------------------------------------------------------------------------------------------------------------
 
 
-def download_data(id_device: str, start_date: str, end_date: str, sample_rate: str, token: str):
+def download_data(id_device: str, start_date: str, end_date: str, sample_rate: str, token: str, format:str):
     
     start = int((datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
     end = int((datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S") -  datetime(1970, 1, 1)).total_seconds())

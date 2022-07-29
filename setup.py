@@ -9,9 +9,9 @@ README = (HERE / "README.md").read_text()
 
 # This call to setup() does all the work
 setup(
-    name="APIMakeSens",
-    version="1.0.3",
-    description="MakeSense API",
+    name="test_APIMakeSens",
+    version="1.1.5",
+    description="test MakeSense API",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/MakeSens-Data/MakeSensAPI_Python",
@@ -28,7 +28,7 @@ setup(
     ,
     entry_points={
         "console_scripts": [
-            "MakeSens-API=MakeSens.__main__:main",
+            "test-MakeSens-API=MakeSens.__main__:main",
         ]
     },
 )
