@@ -195,6 +195,17 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
         
         __save_in_backup(data, id_device, start, end, sample_rate)
     
-
+    start_ = start_date.replace(':','_') 
+    end_ = end_date.replace(':','_')
+    
+    if format == None:
+        pass
+    elif format == 'csv':
+        data.to_csv(id_device + '_'+ start_  +'_' + end_ + '_ ' + sample_rate  +'.csv')
+    elif format == 'xlsx':
+        data.to_excel(id_device + '_'+ start_  +'_' + end_ + '_ ' + sample_rate  +'.xlsx')
+    else:
+        print('El formato no es valido. Formatos validos: csv y xlsx')
+        
     return data
 
