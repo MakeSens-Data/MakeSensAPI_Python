@@ -109,29 +109,32 @@ def __in_backup(id_device: str, start_date: str, end_date: str, sample_rate: str
     if id_device in registro.keys():
         registro[id_device] = sorted(
             registro[id_device], key=lambda rango: rango[1])
-        for i in range(0, len(registro[id_device])):
-            if (start_date < registro[id_device][i][1]) and (end_date < registro[id_device][i][1]):
-                missing.append((start_date, end_date))
-                if (start_date < registro[id_device][i][2]) and (end_date < registro[id_device][i][2]):
-                    break
-                elif (start_date < registro[id_device][i][2]) and (end_date > registro[id_device][i][2]):
-                    start_date = registro[id_device][i][2]
-            elif (start_date < registro[id_device][i][1]) and (end_date > registro[id_device][i][1]):
-                missing.append((start_date, registro[id_device][i][1]))
-                start_date = registro[id_device][i][1]
-                if (start_date < registro[id_device][i][2]) and (end_date <= registro[id_device][i][2]):
+        if registro[id_device][0] == sample_rate:
+            for i in range(0, len(registro[id_device])):
+                if (start_date < registro[id_device][i][1]) and (end_date < registro[id_device][i][1]):
+                    missing.append((start_date, end_date))
+                    if (start_date < registro[id_device][i][2]) and (end_date < registro[id_device][i][2]):
+                        break
+                    elif (start_date < registro[id_device][i][2]) and (end_date > registro[id_device][i][2]):
+                        start_date = registro[id_device][i][2]
+                elif (start_date < registro[id_device][i][1]) and (end_date > registro[id_device][i][1]):
+                    missing.append((start_date, registro[id_device][i][1]))
+                    start_date = registro[id_device][i][1]
+                    if (start_date < registro[id_device][i][2]) and (end_date <= registro[id_device][i][2]):
+                        file_names.append(registro[id_device][i][3])
+                        break
+                    elif (start_date < registro[id_device][i][2]) and (end_date > registro[id_device][i][2]):
+                        file_names.append(registro[id_device][i][3])
+                        start_date = registro[id_device][i][2]
+                elif (start_date >= registro[id_device][i][1]) and (start_date < registro[id_device][i][2]):
                     file_names.append(registro[id_device][i][3])
-                    break
-                elif (start_date < registro[id_device][i][2]) and (end_date > registro[id_device][i][2]):
-                    file_names.append(registro[id_device][i][3])
                     start_date = registro[id_device][i][2]
-            elif (start_date >= registro[id_device][i][1]) and (start_date < registro[id_device][i][2]):
-                file_names.append(registro[id_device][i][3])
-                start_date = registro[id_device][i][2]
-            if (i == len(registro[id_device])-1) and (start_date >= registro[id_device][i][2]):
-                if start_date == end_date:
-                    break
-                missing.append((start_date, end_date))
+                if (i == len(registro[id_device])-1) and (start_date >= registro[id_device][i][2]):
+                    if start_date == end_date:
+                        break
+                    missing.append((start_date, end_date))
+        else:
+            missing.append((start_date, end_date))
     else:
         missing.append((start_date, end_date))
 
@@ -140,13 +143,26 @@ def __in_backup(id_device: str, start_date: str, end_date: str, sample_rate: str
 # -------------------------------------------------------------------------------------------------------------
 #Luego de entregar unos datos se debe actualizar el registro
 
+def __cutdata(data, start, end):
+
+    """
+    Parameters:
+        data -> data to cut
+        start:str -> index of startup
+        end:str -> end index
     
+    Returns:
+        data cut out    
+    """
+    mask = (data.index >= start) & (data.index <= end)
+    data = data[mask]
+    return data  
 
 # -------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------
 
 
-def download_data(id_device: str, start_date: str, end_date: str, sample_rate: str, token: str, format:str):
+def download_data(id_device: str, start_date: str, end_date: str, sample_rate: str, token: str, format:str = None):
     
     start = int((datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
     end = int((datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S") -  datetime(1970, 1, 1)).total_seconds())
@@ -207,5 +223,7 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
     else:
         print('El formato no es valido. Formatos validos: csv y xlsx')
         
+    data_ = data
+    data_ = __cutdata(data,start_date,end_date)
     return data
 
