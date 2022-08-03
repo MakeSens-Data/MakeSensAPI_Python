@@ -109,8 +109,8 @@ def __in_backup(id_device: str, start_date: str, end_date: str, sample_rate: str
     if id_device in registro.keys():
         registro[id_device] = sorted(
             registro[id_device], key=lambda rango: rango[1])
-        if registro[id_device][0] == sample_rate:
-            for i in range(0, len(registro[id_device])):
+        for i in range(0, len(registro[id_device])):
+            if registro[id_device][i][0] == sample_rate:
                 if (start_date < registro[id_device][i][1]) and (end_date < registro[id_device][i][1]):
                     missing.append((start_date, end_date))
                     if (start_date < registro[id_device][i][2]) and (end_date < registro[id_device][i][2]):
@@ -133,8 +133,11 @@ def __in_backup(id_device: str, start_date: str, end_date: str, sample_rate: str
                     if start_date == end_date:
                         break
                     missing.append((start_date, end_date))
-        else:
-            missing.append((start_date, end_date))
+            else:
+                if i == (len(registro[id_device])-1):
+                    missing.append((start_date, end_date)) 
+                else:
+                    pass
     else:
         missing.append((start_date, end_date))
 
@@ -225,5 +228,5 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
         
     data_ = data
     data_ = __cutdata(data,start_date,end_date)
-    return data
+    return data_
 

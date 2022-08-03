@@ -1,2 +1,3 @@
-APIMakeSens.egg-info
-dist
+APIMakeSens.egg-info/
+dist/
+*.ipynb
