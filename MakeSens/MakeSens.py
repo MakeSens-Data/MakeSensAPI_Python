@@ -6,6 +6,11 @@ import json
 from datetime import datetime
 import os
 from typing import List, Tuple
+from matplotlib.collections import LineCollection
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
 # Crear una carpeta oculta, con un archivo de registro
 
 
@@ -230,3 +235,89 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
     data_ = __cutdata(data,start_date,end_date)
     return data_
 
+# -------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
+def __gradient_plot(data,scale,y_label):
+    colorlist=["green", "yellow",'Orange', "red", 'Purple','Brown']
+    newcmp = LinearSegmentedColormap.from_list('testCmap', colors=colorlist, N=256)
+    
+    y_ = np.array(list(data))
+    x_ = np.linspace(1, len(y_),len(y_))#3552, 3552)
+    
+    x = np.linspace(1, len(y_), 10000)
+    y = np.interp(x, x_, y_)
+    
+    points = np.array([x, y]).T.reshape(-1, 1, 2)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+    fig, ax = plt.subplots(figsize=(15, 5))
+
+    norm = plt.Normalize(scale[0], scale[1])
+    lc = LineCollection(segments, cmap=newcmp, norm=norm)
+
+    lc.set_array(y)
+    lc.set_linewidth(1)
+    line = ax.add_collection(lc)
+    data.plot(lw=0)
+    plt.colorbar(line, ax=ax)
+    ax.set_ylim(min(y)-10, max(y)+ 10)
+    plt.ylabel(y_label+'$\mu g / m^3$', fontsize = 14)
+    plt.xlabel('Estampa temporal', fontsize = 14)
+    plt.gcf().autofmt_xdate()
+    plt.show()
+
+def gradient_pm10(id_device:str,start_date:str,end_date:str,sample_rate:str, token:str):
+    data = download_data(id_device,start_date,end_date,sample_rate, token,None)
+    __gradient_plot(data.pm10_1,(54,255),'PM10 ')
+
+def gradient_pm2_5(id_device:str,start_date:str,end_date:str,sample_rate:str, token:str):
+    data = download_data(id_device,start_date,end_date,sample_rate, token,None)
+    __gradient_plot(data.pm25_1,(12,251), 'PM2.5 ')
+    
+
+# -------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
+
+def __hetmap_plot (data,scale,title):
+    colorlist=["green", "yellow",'Orange', "red", 'Purple','Brown']
+    newcmp = LinearSegmentedColormap.from_list('testCmap', colors=colorlist, N=256)
+    norm = plt.Normalize(scale[0], scale[1])
+    
+    date = pd.date_range(data.index.date[0],data.index.date[-1]).date
+    hours = range(0,24)
+    
+    mapa = pd.DataFrame(columns=date, index=hours,dtype="float")
+    
+    for i in range(0,len(date)):
+        dat = data[data.index.date == date[i]]
+        for j in range(0,len(dat)):
+            fila = dat.index.hour[j]
+            mapa[date[i]][fila] = dat[j]
+    
+    plt.figure(figsize=(10,8))
+    ax = sns.heatmap(mapa, cmap=newcmp,norm=norm)
+    plt.ylabel('Horas', fontsize = 16)
+    plt.xlabel('Estampa temporal', fontsize = 16)
+    plt.title(title + '$\mu g / m^3$', fontsize = 16)
+
+    plt.show()
+    
+
+def hetmap_pm10(id_device:str,start_date:str,end_date:str,token:str):
+    data = download_data(id_device,start_date,end_date,'h', token,None)
+    data.index = pd.DatetimeIndex(data.index)
+    data = data.pm10_1
+    
+    __hetmap_plot(data,(54,255),'PM10')
+    
+def hetmap_pm2_5(id_device:str,start_date:str,end_date:str, token:str):
+    data = download_data(id_device,start_date,end_date,'h', token,None)
+    data.index = pd.DatetimeIndex(data.index)
+    data = data.pm25_1
+    
+    __hetmap_plot(data,(12,251),'PM2.5')
+    
