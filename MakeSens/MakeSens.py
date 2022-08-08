@@ -118,11 +118,13 @@ def __in_backup(id_device: str, start_date: str, end_date: str, sample_rate: str
             if registro[id_device][i][0] == sample_rate:
                 if (start_date < registro[id_device][i][1]) and (end_date < registro[id_device][i][1]):
                     missing.append((start_date, end_date))
+                    #print('a')
                     if (start_date < registro[id_device][i][2]) and (end_date < registro[id_device][i][2]):
                         break
                     elif (start_date < registro[id_device][i][2]) and (end_date > registro[id_device][i][2]):
                         start_date = registro[id_device][i][2]
                 elif (start_date < registro[id_device][i][1]) and (end_date > registro[id_device][i][1]):
+                    #print('b')
                     missing.append((start_date, registro[id_device][i][1]))
                     start_date = registro[id_device][i][1]
                     if (start_date < registro[id_device][i][2]) and (end_date <= registro[id_device][i][2]):
@@ -135,17 +137,23 @@ def __in_backup(id_device: str, start_date: str, end_date: str, sample_rate: str
                     file_names.append(registro[id_device][i][3])
                     start_date = registro[id_device][i][2]
                 if (i == len(registro[id_device])-1) and (start_date >= registro[id_device][i][2]):
-                    if start_date == end_date:
+                    if (start_date == end_date) or (end_date <= registro[id_device][i][2]):
                         break
-                    missing.append((start_date, end_date))
+                    else:
+                        #print('c')
+                        missing.append((start_date, end_date))
+                
             else:
                 if i == (len(registro[id_device])-1):
+                    #print('d')
                     missing.append((start_date, end_date)) 
                 else:
                     pass
     else:
         missing.append((start_date, end_date))
-
+        #print('e')
+    
+    #print(file_names)
     return missing, file_names
 # -------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------
@@ -169,7 +177,6 @@ def __cutdata(data, start, end):
 # -------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------
 
-
 def download_data(id_device: str, start_date: str, end_date: str, sample_rate: str, token: str, format:str = None):
     
     start = int((datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
@@ -178,6 +185,7 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
     file_names = []
     if 'makesens_data' in os.listdir():
         missing, file_names = __in_backup(id_device, start, end, sample_rate)
+        #print(missing)
         if len(missing) == 0:
             pass
         else:
@@ -195,10 +203,13 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
         dat.index = dat.iloc[:,0]
         dat = dat.drop([dat.columns[0]],axis=1)
         data = pd.concat([data,dat],axis=0)
-    
+        
     data = data.sort_index()
     data = data.drop_duplicates()
-
+    if len(data) != 0:
+        new_start = int((datetime.strptime(data.index[0], "%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
+        new_end = int((datetime.strptime(data.index[-1], "%Y-%m-%d %H:%M:%S") -  datetime(1970, 1, 1)).total_seconds())
+    #print(data.index[0],data.index[-1])
     if len(file_names) == 1:
         pass
     else:
@@ -216,8 +227,9 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
             
         with open('makesens_data/registro.json', 'w') as fp:
             json.dump(registro, fp)
-        
-        __save_in_backup(data, id_device, start, end, sample_rate)
+         
+        if len(data) != 0:     
+            __save_in_backup(data, id_device, new_start, new_end, sample_rate)
     
     start_ = start_date.replace(':','_') 
     end_ = end_date.replace(':','_')
