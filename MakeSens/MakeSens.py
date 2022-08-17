@@ -294,7 +294,7 @@ def gradient_pm2_5(id_device:str,start_date:str,end_date:str,sample_rate:str, to
 # -------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------
 
-def __hetmap_plot (data,scale,title):
+def _heatmap_plot (data,scale,title):
     colorlist=["green", "yellow",'Orange', "red", 'Purple','Brown']
     newcmp = LinearSegmentedColormap.from_list('testCmap', colors=colorlist, N=256)
     norm = plt.Normalize(scale[0], scale[1])
@@ -319,17 +319,17 @@ def __hetmap_plot (data,scale,title):
     plt.show()
     
 
-def hetmap_pm10(id_device:str,start_date:str,end_date:str,token:str):
+def heatmap_pm10(id_device:str,start_date:str,end_date:str,token:str):
     data = download_data(id_device,start_date,end_date,'h', token,None)
     data.index = pd.DatetimeIndex(data.index)
     data = data.pm10_1
     
-    __hetmap_plot(data,(54,255),'PM10')
+    _heatmap_plot(data,(54,255),'PM10')
     
-def hetmap_pm2_5(id_device:str,start_date:str,end_date:str, token:str):
+def hetamap_pm2_5(id_device:str,start_date:str,end_date:str, token:str):
     data = download_data(id_device,start_date,end_date,'h', token,None)
     data.index = pd.DatetimeIndex(data.index)
     data = data.pm25_1
     
-    __hetmap_plot(data,(12,251),'PM2.5')
+    _heatmap_plot(data,(12,251),'PM2.5')
     
