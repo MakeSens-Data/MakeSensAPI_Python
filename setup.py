@@ -28,7 +28,7 @@ setup(
     ,
     entry_points={
         "console_scripts": [
-            "MakeSens-API=MakeSens.__main__:main",
+            "test-MakeSens-API=MakeSens.__main__:main",
         ]
     },
 )
