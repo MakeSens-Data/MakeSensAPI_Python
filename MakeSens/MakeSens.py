@@ -315,7 +315,6 @@ def _heatmap_plot (data,scale,title):
     plt.ylabel('Horas', fontsize = 16)
     plt.xlabel('Estampa temporal', fontsize = 16)
     plt.title(title + '$\mu g / m^3$', fontsize = 16)
-
     plt.show()
     
 
