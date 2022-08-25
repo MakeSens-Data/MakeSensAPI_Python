@@ -342,7 +342,7 @@ def heatmap_pm10(id_device:str,start_date:str,end_date:str,token:str):
     
     _heatmap_plot(data,(54,255),'PM10')
     
-def hetamap_pm2_5(id_device:str,start_date:str,end_date:str, token:str):
+def heatmap_pm2_5(id_device:str,start_date:str,end_date:str, token:str):
     data = download_data(id_device,start_date,end_date,'h', token,None)
     data.index = pd.DatetimeIndex(data.index)
     data = data.pm25_1
