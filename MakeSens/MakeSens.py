@@ -251,11 +251,26 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
 # -------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------
-def __gradient_plot(data,scale,y_label):
+def __gradient_plot(data,scale,y_label,sample_rate):
+    
+    data.index = pd.DatetimeIndex(data.index)
+    a = pd.date_range(data.index[0],data.index[-1], freq='h')
+    s = []
+    for i in a:
+        if i in data.index:
+            s.append(data[i])
+        else: 
+            s.append(np.nan)
+
+    dat = pd.DataFrame(index=a)
+    dat['PM'] = s
+
+    dat.index = dat.index.strftime("%Y-%m-%d %H:%M:%S")     
+    
     colorlist=["green", "yellow",'Orange', "red", 'Purple','Brown']
     newcmp = LinearSegmentedColormap.from_list('testCmap', colors=colorlist, N=256)
     
-    y_ = np.array(list(data))
+    y_ = np.array(list(dat['PM']))
     x_ = np.linspace(1, len(y_),len(y_))#3552, 3552)
     
     x = np.linspace(1, len(y_), 10000)
@@ -272,7 +287,7 @@ def __gradient_plot(data,scale,y_label):
     lc.set_array(y)
     lc.set_linewidth(1)
     line = ax.add_collection(lc)
-    data.plot(lw=0)
+    dat['PM'].plot(lw=0)
     plt.colorbar(line, ax=ax)
     ax.set_ylim(min(y)-10, max(y)+ 10)
     plt.ylabel(y_label+'$\mu g / m^3$', fontsize = 14)
@@ -282,11 +297,13 @@ def __gradient_plot(data,scale,y_label):
 
 def gradient_pm10(id_device:str,start_date:str,end_date:str,sample_rate:str, token:str):
     data = download_data(id_device,start_date,end_date,sample_rate, token,None)
-    __gradient_plot(data.pm10_1,(54,255),'PM10 ')
+    
+    data.index
+    __gradient_plot(data.pm10_1,(54,255),'PM10 ', sample_rate)
 
 def gradient_pm2_5(id_device:str,start_date:str,end_date:str,sample_rate:str, token:str):
     data = download_data(id_device,start_date,end_date,sample_rate, token,None)
-    __gradient_plot(data.pm25_1,(12,251), 'PM2.5 ')
+    __gradient_plot(data.pm25_1,(12,251), 'PM2.5 ',sample_rate)
     
 
 # -------------------------------------------------------------------------------------------------------------
