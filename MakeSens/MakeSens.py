@@ -254,7 +254,7 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
 def __gradient_plot(data,scale,y_label,sample_rate):
     
     data.index = pd.DatetimeIndex(data.index)
-    a = pd.date_range(data.index[0],data.index[-1], freq='h')
+    a = pd.date_range(data.index[0],data.index[-1], freq=sample_rate)
     s = []
     for i in a:
         if i in data.index:
