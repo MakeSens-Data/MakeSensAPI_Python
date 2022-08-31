@@ -253,6 +253,11 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
 # -------------------------------------------------------------------------------------------------------------
 def __gradient_plot(data,scale,y_label,sample_rate):
     
+    if sample_rate == 'm':
+        sample_rate = 'T'
+    elif sample_rate == 'w':
+        sample_rate ='7d'
+    
     data.index = pd.DatetimeIndex(data.index)
     a = pd.date_range(data.index[0],data.index[-1], freq=sample_rate)
     s = []
@@ -276,7 +281,7 @@ def __gradient_plot(data,scale,y_label,sample_rate):
     x = np.linspace(1, len(y_), 10000)
     y = np.interp(x, x_, y_)
     
-    points = np.array([x, y]).T.reshape(-1, 1, 2)
+    points = np.array([x-1, y]).T.reshape(-1, 1, 2)
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
     fig, ax = plt.subplots(figsize=(15, 5))
@@ -297,14 +302,16 @@ def __gradient_plot(data,scale,y_label,sample_rate):
 
 def gradient_pm10(id_device:str,start_date:str,end_date:str,sample_rate:str, token:str):
     data = download_data(id_device,start_date,end_date,sample_rate, token,None)
+    data['ts'] = data.index
+    data = data.drop_duplicates(subset = ['ts'])
     
-    data.index
     __gradient_plot(data.pm10_1,(54,255),'PM10 ', sample_rate)
 
 def gradient_pm2_5(id_device:str,start_date:str,end_date:str,sample_rate:str, token:str):
     data = download_data(id_device,start_date,end_date,sample_rate, token,None)
+    data['ts'] = data.index
+    data = data.drop_duplicates(subset = ['ts'])
     __gradient_plot(data.pm25_1,(12,251), 'PM2.5 ',sample_rate)
-    
 
 # -------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------
