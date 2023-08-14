@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 import json
 from datetime import datetime
-import os
+import calendar
 from typing import List, Tuple
 from matplotlib.collections import LineCollection
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
@@ -18,6 +18,83 @@ def __save_data(data,name:str,format:str)-> None:
         data.to_excel(name +'.xlsx')
     else:
         print('Formato no valido. Formatos validos: csv y xlsx')
+
+
+def __convert_measurements(measurements: list[str], mode="lower"):
+    # Diccionario de correcciones específicas
+    corrections = {
+        "temperatura2": "temperatura_2",
+        "humedad2": "humedad_2",
+        "TEMPERATUA2": "TEMPERATURA_2",  # Nota: parece un error tipográfico, revisa si realmente es "TEMPERATUA2"
+        "HUMEDAD2": "HUMEDAD_2"
+    }
+
+    new_measurements = []
+
+    for measurement in measurements:
+        # Aplicar correcciones específicas si es necesario
+        measurement = corrections.get(measurement, measurement)
+
+        # Convertir a mayúsculas o minúsculas según el modo
+        new_measurement = measurement.upper() if mode == 'upper' else measurement.lower()
+        new_measurements.append(new_measurement)
+
+    return new_measurements
+
+def download_data_new(id_device:str, start_date:str, end_date:str, sample_rate:str, format:str = None, fields:str = None):
+    # Convertir las fechas string a datetime
+    start_date_ = datetime.strptime(start_date, '%Y-%m-%d %H:%M:%S')
+    end_date_ = datetime.strptime(end_date, '%Y-%m-%d %H:%M:%S')
+    
+    # Convertir datetime a timestamp Unix
+    start = int(calendar.timegm(start_date_.utctimetuple()))
+    end = int(calendar.timegm(end_date_.utctimetuple()))
+    
+    dat = [] # Almacenar los datos
+    tmin = start
+
+    if fields is not None:
+        fields = fields.split(',')
+        fields = str(','.join(__convert_measurements(fields, mode = 'upper')))
+
+    while tmin < end:
+        url = f'https://api.makesens.co/device/{id_device}/data?min_ts={tmin}&max_ts={end}&agg={sample_rate}' 
+
+        
+        if fields is not None:
+            url += f'&fields={fields}' 
+        try:
+            rta = requests.get(url).content
+            d = json.loads(rta)
+        except Exception as e:
+            print(f"Error fetching or parsing data: {e}")
+            break
+
+        # Salir del bucle si no hay datos o si el timestamp no ha cambiado
+        if len(d) == 1 or tmin == int(d['date_range']['end']):
+            break
+        
+        tmin = int(d['date_range']['end'])
+        dat.extend(d['data'])
+
+    if dat:
+        data = pd.DataFrame(dat)
+        data['ts'] = pd.to_datetime(data['ts'], unit='s', utc=False)
+
+        # Poner las variables como las conoce el
+        new_columns = __convert_measurements(list(data.columns))
+        data.columns = new_columns
+    
+        start_ = start_date.replace(':','_') 
+        end_ = end_date.replace(':','_')
+        name = id_device + '_'+ start_  +'_' + end_ + '_ ' + sample_rate
+
+        if format is not None:
+            __save_data(data,name,format) 
+
+        return data
+
+
 
 
 def download_data(id_device:str,start_date:str,end_date:str, sample_rate:str,format:str = None, fields:str = None):
@@ -54,6 +131,9 @@ def download_data(id_device:str,start_date:str,end_date:str, sample_rate:str,for
     
         
     return data
+
+
+
 # -------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------
