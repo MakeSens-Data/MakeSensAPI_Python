@@ -20,7 +20,7 @@ def __save_data(data,name:str,format:str)-> None:
         print('Formato no valido. Formatos validos: csv y xlsx')
 
 
-def download_data(id_device:str,start_date:str,end_date:str, sample_rate:str,format:str = None, fields:str = None):
+def download_data(id_device:str,start_date:str,end_date:str, sample_rate:str = None,format:str = None, fields:str = None):
     
     start:int = int((datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
     end:int = int((datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S") -  datetime(1970, 1, 1)).total_seconds())
@@ -29,10 +29,17 @@ def download_data(id_device:str,start_date:str,end_date:str, sample_rate:str,for
     tmin:int = start
         
     while tmin < end:
-        if fields == None:
-            url = f'https://api.makesens.co/ambiental/metricas/{id_device}/data?agg=1{sample_rate}&agg_type=mean&items=1000&max_ts={str(end * 1000)}&min_ts={str(tmin * 1000)}'
+        if sample_rate != None:
+            if fields == None:
+                url = f'https://api.makesens.co/ambiental/metricas/{id_device}/data?agg=1{sample_rate}&agg_type=mean&items=1000&max_ts={str(end * 1000)}&min_ts={str(tmin * 1000)}'
+            else:
+                url =  f'https://api.makesens.co/ambiental/metricas/{id_device}/data?agg=1{sample_rate}&agg_type=mean&fields={fields}&items=1000&max_ts={str(end * 1000)}&min_ts={str(tmin * 1000)}'
         else:
-            url =  f'https://api.makesens.co/ambiental/metricas/{id_device}/data?agg=1{sample_rate}&agg_type=mean&fields={fields}&items=1000&max_ts={str(end * 1000)}&min_ts={str(tmin * 1000)}'
+            if fields == None:
+                url = f'https://api.makesens.co/ambiental/metricas/{id_device}/data?items=1000&max_ts={str(end * 1000)}&min_ts={str(tmin * 1000)}'
+            else:
+                url =  f'https://api.makesens.co/ambiental/metricas/{id_device}/data?fields={fields}&items=1000&max_ts={str(end * 1000)}&min_ts={str(tmin * 1000)}'
+
         rta = requests.get(url).content
         d = json.loads(rta)
         try:
@@ -47,7 +54,10 @@ def download_data(id_device:str,start_date:str,end_date:str, sample_rate:str,for
     
     start_ = start_date.replace(':','_') 
     end_ = end_date.replace(':','_')
-    name = id_device + '_'+ start_  +'_' + end_ + '_ ' + sample_rate
+    if sample_rate == None:
+        name = id_device + '_'+ start_  +'_' + end_ 
+    else:
+        name = id_device + '_'+ start_  +'_' + end_ + '_ ' + sample_rate
     
     if format != None:
         __save_data(data,name,format)    
@@ -215,3 +225,8 @@ def weekly_profile (id_device,start_date,end_date,field):
     plt.xlabel('Horas',fontsize = 14)
     plt.ylabel(f'{field} {unidad}',fontsize = 14)
     plt.show()   
+
+
+if __name__ == '__main__':
+    data = download_data('mE1_00004','2023-03-14 00:00:00', '2023-03-26 00:00:00')
+    print(data)
