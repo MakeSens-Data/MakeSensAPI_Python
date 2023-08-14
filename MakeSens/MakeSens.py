@@ -41,7 +41,7 @@ def __convert_measurements(measurements: list[str], mode="lower"):
 
     return new_measurements
 
-def download_data_new(id_device:str, start_date:str, end_date:str, sample_rate:str, format:str = None, fields:str = None):
+def download_data(id_device:str, start_date:str, end_date:str, sample_rate:str, format:str = None, fields:str = None):
     # Convertir las fechas string a datetime
     start_date_ = datetime.strptime(start_date, '%Y-%m-%d %H:%M:%S')
     end_date_ = datetime.strptime(end_date, '%Y-%m-%d %H:%M:%S')
@@ -97,40 +97,40 @@ def download_data_new(id_device:str, start_date:str, end_date:str, sample_rate:s
 
 
 
-def download_data(id_device:str,start_date:str,end_date:str, sample_rate:str,format:str = None, fields:str = None):
+# def download_data(id_device:str,start_date:str,end_date:str, sample_rate:str,format:str = None, fields:str = None):
     
-    start:int = int((datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
-    end:int = int((datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S") -  datetime(1970, 1, 1)).total_seconds())
+#     start:int = int((datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S") - datetime(1970, 1, 1)).total_seconds())
+#     end:int = int((datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S") -  datetime(1970, 1, 1)).total_seconds())
     
-    dat:list = []
-    tmin:int = start
+#     dat:list = []
+#     tmin:int = start
         
-    while tmin < end:
-        if fields == None:
-            url = f'https://api.makesens.co/ambiental/metricas/{id_device}/data?agg=1{sample_rate}&agg_type=mean&items=1000&max_ts={str(end * 1000)}&min_ts={str(tmin * 1000)}'
-        else:
-            url =  f'https://api.makesens.co/ambiental/metricas/{id_device}/data?agg=1{sample_rate}&agg_type=mean&fields={fields}&items=1000&max_ts={str(end * 1000)}&min_ts={str(tmin * 1000)}'
-        rta = requests.get(url).content
-        d = json.loads(rta)
-        try:
-            if tmin == (d[-1]['ts']//1000) + 1:
-                break
-            dat = dat + d
-            tmin = (d[-1]['ts']//1000) + 1
-        except IndexError:
-            break
+#     while tmin < end:
+#         if fields == None:
+#             url = f'https://api.makesens.co/ambiental/metricas/{id_device}/data?agg=1{sample_rate}&agg_type=mean&items=1000&max_ts={str(end * 1000)}&min_ts={str(tmin * 1000)}'
+#         else:
+#             url =  f'https://api.makesens.co/ambiental/metricas/{id_device}/data?agg=1{sample_rate}&agg_type=mean&fields={fields}&items=1000&max_ts={str(end * 1000)}&min_ts={str(tmin * 1000)}'
+#         rta = requests.get(url).content
+#         d = json.loads(rta)
+#         try:
+#             if tmin == (d[-1]['ts']//1000) + 1:
+#                 break
+#             dat = dat + d
+#             tmin = (d[-1]['ts']//1000) + 1
+#         except IndexError:
+#             break
        
-    data = pd.DataFrame([i['val'] for i in dat], index=[datetime.utcfromtimestamp(i['ts']/1000).strftime('%Y-%m-%d %H:%M:%S') for i in dat])
+#     data = pd.DataFrame([i['val'] for i in dat], index=[datetime.utcfromtimestamp(i['ts']/1000).strftime('%Y-%m-%d %H:%M:%S') for i in dat])
     
-    start_ = start_date.replace(':','_') 
-    end_ = end_date.replace(':','_')
-    name = id_device + '_'+ start_  +'_' + end_ + '_ ' + sample_rate
+#     start_ = start_date.replace(':','_') 
+#     end_ = end_date.replace(':','_')
+#     name = id_device + '_'+ start_  +'_' + end_ + '_ ' + sample_rate
     
-    if format != None:
-        __save_data(data,name,format)    
+#     if format != None:
+#         __save_data(data,name,format)    
     
         
-    return data
+#     return data
 
 
 
