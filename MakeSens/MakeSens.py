@@ -9,6 +9,7 @@ from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
+from urllib.parse import urlencode
 
 
 def __save_data(data,name:str,format:str)-> None:
@@ -24,10 +25,16 @@ def __convert_measurements(measurements: list[str], mode="lower"):
     # Diccionario de correcciones específicas
     corrections = {
         "temperatura2": "temperatura_2",
+        "temperatura_2": "temperatura2",
         "humedad2": "humedad_2",
-        "TEMPERATUA2": "TEMPERATURA_2",  # Nota: parece un error tipográfico, revisa si realmente es "TEMPERATUA2"
-        "HUMEDAD2": "HUMEDAD_2"
+        "humedad_2": "humedad2",
+        "TEMPERATURA2": "TEMPERATURA_2",
+        "TEMPERATURA_2": "TEMPERATURA2",  # Nota: parece un error tipográfico, revisa si realmente es "TEMPERATUA2"
+        "HUMEDAD2": "HUMEDAD_2",
+        "HUMEDAD_2": "HUMEDAD2"
     }
+
+    
 
     new_measurements = []
 
@@ -58,11 +65,17 @@ def download_data(id_device:str, start_date:str, end_date:str, sample_rate:str, 
         fields = str(','.join(__convert_measurements(fields, mode = 'upper')))
 
     while tmin < end:
-        url = f'https://api.makesens.co/device/{id_device}/data?min_ts={tmin}&max_ts={end}&agg={sample_rate}' 
+        params = {'min_ts':tmin,
+                  'max_ts':end, 
+                  'agg': sample_rate}
+        
 
         
         if fields is not None:
-            url += f'&fields={fields}' 
+            params['fields'] = fields 
+
+        encoded_params = urlencode(params)
+        url = f'https://api.makesens.co/device/{id_device}/data?{encoded_params}'
         try:
             rta = requests.get(url).content
             d = json.loads(rta)
