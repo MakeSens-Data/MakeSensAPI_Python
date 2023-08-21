@@ -145,13 +145,24 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
         tmin = int(d['date_range']['end']) // 1000
         dat.extend(d['data'])
 
+
     if dat:
         data = pd.DataFrame(dat)
         data['ts'] = pd.to_datetime(data['ts'], unit='ms', utc=False)
 
+
         # Poner las variables como se conocen
         new_columns = __convert_measurements(list(data.columns))
         data.columns = new_columns
+
+        data.rename(columns={
+            "pm10_1_ae" : "pm10_1_AE",
+            "pm10_2_ae" : "pm10_2_AE",
+            "pm25_1_ae" : "pm25_1_AE",
+            "pm25_2_ae" : "pm25_2_AE",
+            "pm1_1_ae" : "pm1_1_AE",
+            "pm1_2_ae" : "pm1_2_AE",		
+        }, inplace=True)
     
         start_ = start_date.replace(':', '_') 
         end_ = end_date.replace(':', '_')
