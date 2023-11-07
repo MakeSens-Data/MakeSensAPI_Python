@@ -83,7 +83,7 @@ def __convert_measurements(measurements: list[str], mode="lower"):
     return new_measurements
 
 
-def download_data(id_device: str, start_date: str, end_date: str, sample_rate: str, format: str = None, fields: str = None):
+def download_data(id_device: str, start_date: str, end_date: str, sample_rate: str, logs:bool = False,  format: str = None, fields: str = None):
     """
     Descarga y procesa datos de un dispositivo en un rango de fechas especificado.
 
@@ -95,6 +95,7 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
         start_date (str): Fecha y hora de inicio en formato 'YYYY-MM-DD HH:MM:SS'.
         end_date (str): Fecha y hora de fin en formato 'YYYY-MM-DD HH:MM:SS'.
         sample_rate (str): Tasa de muestreo para los datos ('m' para minutos, 'h' para horas, 'd' para días).
+        logs (bool, optional): Indica si se quiere descargar los logs. Por defecto False (descarga data)
         format (str, optional): Formato para guardar los datos descargados ('csv' o 'xlsx'). Por defecto None.
         fields (str, optional): Lista de campos específicos a descargar. Por defecto None (todos los campos).
 
@@ -109,8 +110,8 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
     end_date_ = datetime.strptime(end_date, '%Y-%m-%d %H:%M:%S')
     
     # Convertir datetime a timestamp Unix
-    start = int(calendar.timegm(start_date_.utctimetuple()))
-    end = int(calendar.timegm(end_date_.utctimetuple())) 
+    start = int(calendar.timegm(start_date_.utctimetuple()))  * 1000
+    end = int(calendar.timegm(end_date_.utctimetuple()))  * 1000
     
     dat = [] # Almacenar los datos
     tmin = start 
@@ -128,9 +129,12 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
         
         if fields is not None:
             params['fields'] = fields 
-
+        
         encoded_params = urlencode(params)
-        url = f'https://api.makesens.co/device/{id_device}/data?{encoded_params}'
+        if logs:
+            url = f'https://api.makesens.co/device/{id_device}/logs?{encoded_params}'
+        else:
+            url = f'https://api.makesens.co/device/{id_device}/data?{encoded_params}'
         try:
             rta = requests.get(url).content
             d = json.loads(rta)
@@ -139,12 +143,14 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
             break
 
         # Salir del bucle si no hay datos o si el timestamp no ha cambiado
-        if len(d) == 1 or tmin == int(d['date_range']['end']) // 1000:
+        if len(d) == 1 or tmin == int(d['date_range']['end']):
             break
         
-        tmin = int(d['date_range']['end']) // 1000
+        tmin = int(d['date_range']['end'])
         dat.extend(d['data'])
 
+    if not dat:
+        raise ValueError("There are no data for that date range.")
 
     if dat:
         data = pd.DataFrame(dat)
@@ -170,7 +176,7 @@ def download_data(id_device: str, start_date: str, end_date: str, sample_rate: s
 
         if format is not None:
             __save_data(data, name, format) 
-
+        
         return data
 
 
@@ -313,8 +319,11 @@ def gradient_pm10(id_device: str, start_date: str, end_date: str, sample_rate: s
     #data['ts'] = data.index
     data = data.drop_duplicates(subset=['ts'])
     data.index = data['ts']
-
-    __gradient_plot(data.pm10_1, (54, 255), 'PM10 ', sample_rate)
+    data = data.dropna(  )
+    if data.empty or len(data) <= 1:
+        print("The data series is empty or there is only one value; it cannot be plotted.")
+    else:
+        __gradient_plot(data.pm10_1, (54, 255), 'PM10 ', sample_rate)
 
 
 def gradient_pm2_5(id_device: str, start_date: str, end_date: str, sample_rate: str):
@@ -342,7 +351,10 @@ def gradient_pm2_5(id_device: str, start_date: str, end_date: str, sample_rate: 
     data = data.drop_duplicates(subset=['ts'])
     data.index = data['ts']
 
-    __gradient_plot(data.pm25_1, (12, 251), 'PM2.5 ', sample_rate)
+    if data.empty or len(data) <= 1:
+        print("The data series is empty or there is only one value; it cannot be plotted.")
+    else:
+        __gradient_plot(data.pm25_1, (12, 251), 'PM2.5 ', sample_rate)
 
 
 # -------------------------------------------------------------------------------------------------------------
