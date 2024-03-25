@@ -1,0 +1,5 @@
+{"PM10": {"ranges":[[0, "green"], [55, "yellow"], [155, "Orange"], [255, "red"], [355, "Purple"], [425, "Brown"]],
+          "units": "$ \\mu g /m^3$"}, 
+ "PM2.5": {"ranges":[[0, "green"], [13, "yellow"], [38, "Orange"], [56, "red"], [151, "Purple"], [251, "Brown"]],
+          "units" : "$ \\mu g /m^3$"}
+}

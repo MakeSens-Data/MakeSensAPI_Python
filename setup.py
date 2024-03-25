@@ -1,5 +1,6 @@
+"""Archivo de configuración del modulo MakeSens"""
 import pathlib
-from setuptools import setup,find_packages
+from setuptools import setup
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
@@ -10,7 +11,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="APIMakeSens",
-    version="1.3.6",
+    version="1.4.0",
     description="MakeSense API",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -32,3 +33,4 @@ setup(
         ]
     },
 )
+# End-of-file
