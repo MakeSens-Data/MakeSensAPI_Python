@@ -10,6 +10,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.collections import LineCollection
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pkg_resources
 
 def download_data(id_device: str, start_date: str, end_date: str,
                     sample_rate: str, logs:bool = False,
@@ -287,8 +288,10 @@ def __load_normalized_color_ranges(variable_name: str) -> list:
         (entre 0 y 1) y el color asociado.
     """
     # Abrir y cargar los datos desde el archivo JSON
-    with open('colors_by_variable.json', 'r', encoding="utf-8") as file:
+    file_path = pkg_resources.resource_filename('MakeSens', 'colors_by_variable.json')
+    with open(file_path, 'r', encoding="utf-8") as file:
         data = json.load(file)
+
 
     # Extraer los rangos de colores para la variable especificada
     color_ranges = data[variable_name]['ranges']

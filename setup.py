@@ -11,7 +11,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="APIMakeSens",
-    version="1.4.0",
+    version="1.4.7",
     description="MakeSense API",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -24,9 +24,12 @@ setup(
         "Programming Language :: Python :: 3.9",
     ],
     packages=["MakeSens"],
+    package_data={
+        'MakeSens': ['colors_by_variable.json'],
+    },
     include_package_data=True,
-    install_requires=["pandas", "requests","datetime"]
-    ,
+    data_files=[('data', ['MakeSens/colors_by_variable.json'])],
+    install_requires=["pandas", "requests","datetime"],
     entry_points={
         "console_scripts": [
             "test-MakeSens-API=MakeSens.__main__:main",
