@@ -100,6 +100,8 @@ def download_data(id_device: str, start_date: str, end_date: str,
             "pm1_1_ae" : "pm1_1_AE",
             "pm1_2_ae" : "pm1_2_AE",		
         }, inplace=True)
+
+        dataframe_data = dataframe_data.resample(sample_rate).mean()
         if file_format is not None:
             start_datetime_str = start_datetime.strftime("%Y-%m-%d_%H_%M_%S")
             end_datetime_str = end_datetime.strftime("%Y-%m-%d_%H_%M_%S")
@@ -266,7 +268,7 @@ def heatmap(data:pd.Series, variable:str):
 
     plt.figure(figsize=(10,8))
     sns.heatmap(heatmap_data.T, cmap=newcmp, norm=norm)
-    plt.ylabel(f'{variable} [{units}]', fontsize=14)
+    plt.ylabel('Horas', fontsize=14)
     plt.xlabel('Estampa temporal', fontsize=14)
     plt.show()
 
