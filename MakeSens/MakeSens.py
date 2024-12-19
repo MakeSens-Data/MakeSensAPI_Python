@@ -13,7 +13,7 @@ import seaborn as sns
 import pkg_resources
 
 def download_data(id_device: str, start_date: str, end_date: str,
-                    sample_rate: str, logs:bool = False,
+                    sample_rate: str =  None, logs:bool = False,
                     data_type:str = 'RAW',  file_format: str = None,
                     fields: str = None):
     """
@@ -62,9 +62,10 @@ def download_data(id_device: str, start_date: str, end_date: str,
     initial_timestamp_ms = start_timestamp_ms
     params = {'min_ts':initial_timestamp_ms,
               'max_ts':end_timestamp_ms,
-              'agg': sample_rate,
               'data_type': data_type
               }
+    if sample_rate:
+        params['agg'] = sample_rate 
     if fields is not None:
         params['fields'] = fields
     while initial_timestamp_ms < end_timestamp_ms:
@@ -101,7 +102,8 @@ def download_data(id_device: str, start_date: str, end_date: str,
             "pm1_2_ae" : "pm1_2_AE",		
         }, inplace=True)
 
-        dataframe_data = dataframe_data.resample(sample_rate).mean()
+        if sample_rate:
+            dataframe_data = dataframe_data.resample(sample_rate).mean()
         if file_format is not None:
             start_datetime_str = start_datetime.strftime("%Y-%m-%d_%H_%M_%S")
             end_datetime_str = end_datetime.strftime("%Y-%m-%d_%H_%M_%S")
